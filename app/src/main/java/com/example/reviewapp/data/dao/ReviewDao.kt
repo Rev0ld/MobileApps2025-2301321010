@@ -1,12 +1,11 @@
-package com.example.reviewapp
+package com.example.reviewapp.data.dao
 
-import androidx.core.view.WindowInsetsCompat
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
-import kotlinx.coroutines.flow.Flow
+import com.example.reviewapp.data.entities.Review
 
 @Dao
 interface ReviewDao {

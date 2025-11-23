@@ -1,20 +1,21 @@
-package com.example.reviewapp
+package com.example.reviewapp.ui
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.ContactsContract
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
 import coil.load
+import com.example.reviewapp.MainActivity
+import com.example.reviewapp.R
+import com.example.reviewapp.data.database.AppDatabase
+import com.example.reviewapp.data.entities.Review
+import com.example.reviewapp.repository.PhotoRepository
 import java.io.File
-import kotlin.collections.get
-import kotlin.math.log
 
 class UpdateDeleteActivity : AppCompatActivity(){
 
@@ -75,7 +76,7 @@ class UpdateDeleteActivity : AppCompatActivity(){
             return
         }
         Thread {
-            val dao = AppDatabase.get(applicationContext).reviewDao()
+            val dao = AppDatabase.Companion.get(applicationContext).reviewDao()
             val c = dao.getById(id)
             runOnUiThread {
                 if (c == null) {
@@ -102,7 +103,7 @@ class UpdateDeleteActivity : AppCompatActivity(){
                 longitude = base.longitude
             )
             Thread {
-                val dao = AppDatabase.get(applicationContext).reviewDao()
+                val dao = AppDatabase.Companion.get(applicationContext).reviewDao()
                 if (pickedPhotoPath != null && base.photoPath != null && base.photoPath !=
                     pickedPhotoPath) {
 
@@ -119,7 +120,7 @@ class UpdateDeleteActivity : AppCompatActivity(){
             val toDelete = current ?: return@setOnClickListener
             Thread {
 
-                val dao = AppDatabase.get(applicationContext).reviewDao()
+                val dao = AppDatabase.Companion.get(applicationContext).reviewDao()
                 dao.delete(toDelete)
                 photoRepo.deletePhoto(toDelete.photoPath)
                 runOnUiThread {

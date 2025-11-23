@@ -1,16 +1,15 @@
-package com.example.reviewapp
+package com.example.reviewapp.viewModels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.reviewapp.data.database.AppDatabase
+import com.example.reviewapp.data.entities.Review
 import kotlinx.coroutines.launch
-import kotlin.collections.get
-import kotlin.text.insert
 
 class ReviewViewModel(app: Application) : AndroidViewModel(app)
 {
-    private val dao = AppDatabase.get(app).reviewDao()
+    private val dao = AppDatabase.Companion.get(app).reviewDao()
 
     val reviews = dao.getAll()
 

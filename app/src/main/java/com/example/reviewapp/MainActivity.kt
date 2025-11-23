@@ -3,6 +3,7 @@ package com.example.reviewapp
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.InputFilter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -11,13 +12,17 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import okio.Inflater
-import kotlin.collections.get
-import androidx.core.widget.addTextChangedListener
-
+import com.example.reviewapp.data.database.AppDatabase
+import com.example.reviewapp.data.entities.Review
+import com.example.reviewapp.repository.PhotoRepository
+import com.example.reviewapp.ui.MapActivity
+import com.example.reviewapp.ui.MapPickerActivity
+import com.example.reviewapp.ui.UpdateDeleteActivity
+import com.example.reviewapp.viewModels.ReviewViewModel
 
 class MainActivity : AppCompatActivity() {
 
@@ -93,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         ivPreview = findViewById(R.id.ivPreview)
         rvReviews = findViewById(R.id.rvReviews)
 
-        etRating?.filters = arrayOf(android.text.InputFilter { source, start, end, dest, dstart, dend ->
+        etRating?.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
             val result = dest.toString().substring(0, dstart) +
                     source.substring(start, end) +
                     dest.toString().substring(dend)
@@ -165,7 +170,7 @@ class MainActivity : AppCompatActivity() {
                 longitude = pickedLng
             )
             var t = Thread{
-                var db = AppDatabase.get(applicationContext)
+                var db = AppDatabase.Companion.get(applicationContext)
                 db.reviewDao().insert(review)
                 runOnUiThread {
                     RefreshList()
@@ -185,7 +190,7 @@ class MainActivity : AppCompatActivity() {
     }
     private fun RefreshList() {
         var t = Thread {
-            var listReviews = AppDatabase.get(applicationContext).reviewDao().getAll()
+            var listReviews = AppDatabase.Companion.get(applicationContext).reviewDao().getAll()
 
             runOnUiThread {
                 adapter?.submitList(listReviews)

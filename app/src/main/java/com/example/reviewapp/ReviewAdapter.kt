@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import com.example.reviewapp.data.entities.Review
 import java.io.File
 
 class ReviewAdapter : ListAdapter<Review, ReviewAdapter.VH>(DIFF) {

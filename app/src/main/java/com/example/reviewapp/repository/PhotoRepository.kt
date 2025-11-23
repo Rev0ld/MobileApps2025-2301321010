@@ -1,4 +1,4 @@
-package com.example.reviewapp
+package com.example.reviewapp.repository
 
 import android.content.ContentResolver
 import android.content.Context

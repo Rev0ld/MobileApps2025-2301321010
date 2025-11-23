@@ -41,14 +41,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".UpdateDeleteActivity"
+            android:name=".ui.UpdateDeleteActivity"
             android:exported="false" />
         <activity
-            android:name=".MapActivity"
+            android:name=".ui.MapActivity"
             android:exported="false"
             android:label="@string/title_activity_map" />
         <activity
-            android:name=".MapPickerActivity"
+            android:name=".ui.MapPickerActivity"
             android:exported="false"/>
     </application>
 

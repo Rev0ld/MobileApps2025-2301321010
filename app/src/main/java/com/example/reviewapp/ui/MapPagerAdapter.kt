@@ -1,4 +1,4 @@
-package com.example.reviewapp
+package com.example.reviewapp.ui
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
