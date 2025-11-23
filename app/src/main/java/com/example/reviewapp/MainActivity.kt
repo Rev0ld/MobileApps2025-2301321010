@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import okio.Inflater
 import kotlin.collections.get
+import androidx.core.widget.addTextChangedListener
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     private var pickedLat: Double? = null
     private var pickedLng: Double? = null
 
+    private var btnPickLocation: Button? = null
+
 
     private val vm: ReviewViewModel by viewModels()
     private lateinit var photoRepo: PhotoRepository
@@ -51,6 +55,27 @@ class MainActivity : AppCompatActivity() {
             pickedPhotoPath = photoRepo.saveFromUri(it)
             ivPreview?.load(pickedPhotoPath)
         }
+    }
+    private val pickLocation =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+
+                val data = result.data
+
+                if (data?.hasExtra("lat") == true && data.hasExtra("lng") == true) {
+                    pickedLat = data.getDoubleExtra("lat", 0.0)
+                    pickedLng = data.getDoubleExtra("lng", 0.0)
+                    Toast.makeText(this, "Location selected!", Toast.LENGTH_SHORT).show()
+                } else {
+                    pickedLat = null
+                    pickedLng = null
+                }
+                updateAddButtonState()
+            }
+        }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        RefreshList()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,38 +104,40 @@ class MainActivity : AppCompatActivity() {
             if (num == null || num !in 1..5) "" else null
         })
 
+        btnPickLocation = findViewById(R.id.btnPickLocation)
+
+
         adapter = ReviewAdapter()
         rvReviews?.layoutManager = LinearLayoutManager(this)
         rvReviews?.adapter = adapter
         photoRepo = PhotoRepository(this)
 
-        adapter?.lambdaOnClick = {  contact ->
-            val i = contact?.let {
+        adapter?.lambdaOnClick = {  review ->
+            val i = review?.let {
                 Intent(applicationContext, UpdateDeleteActivity::class.java)
                     .putExtra("review_id", it.id)
             }
-            //startActivity(i)
             if (i != null) {
                 startActivityForResult(i, 200)
             }
         }
-        adapter?.lambdaOnMapClick = { contact ->
+        adapter?.lambdaOnMapClick = { review ->
 
             val intent = Intent(this, MapActivity::class.java).apply {
-                if (contact != null) {
-                    putExtra("extra_name", contact.name)
+                if (review != null) {
+                    putExtra("extra_name", review.name)
                 }
-                if (contact != null) {
-                    putExtra("extra_rating", contact.rating)
+                if (review != null) {
+                    putExtra("extra_rating", review.rating)
                 }
-                if (contact != null) {
-                    putExtra("extra_review", contact.review)
+                if (review != null) {
+                    putExtra("extra_review", review.review)
                 }
-                if (contact != null) {
-                    putExtra("extra_lat", contact.latitude)
+                if (review != null) {
+                    putExtra("extra_lat", review.latitude)
                 }
-                if (contact != null) {
-                    putExtra("extra_lon", contact.longitude)
+                if (review != null) {
+                    putExtra("extra_lon", review.longitude)
                 }
             }
             startActivity(intent)
@@ -119,6 +146,14 @@ class MainActivity : AppCompatActivity() {
         RefreshList()
 
         btnPick?.setOnClickListener { pickImage.launch(arrayOf("image/*")) }
+        btnPickLocation?.setOnClickListener {
+            val intent = Intent(this, MapPickerActivity::class.java)
+            pickLocation.launch(intent)
+        }
+        etName?.addTextChangedListener { updateAddButtonState() }
+        etRating?.addTextChangedListener { updateAddButtonState() }
+        etReview?.addTextChangedListener { updateAddButtonState() }
+
 
         btnAdd?.setOnClickListener {
             val review = Review(
@@ -138,6 +173,9 @@ class MainActivity : AppCompatActivity() {
                     etRating?.text?.clear()
                     etReview?.text?.clear()
                     pickedPhotoPath = null
+                    pickedLat = null
+                    pickedLng = null
+                    updateAddButtonState()
                     ivPreview?.setImageResource(android.R.drawable.ic_menu_gallery)
 
                 }
@@ -154,5 +192,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
         t.start()
+    }
+    private fun updateAddButtonState() {
+        btnAdd?.isEnabled =
+            !etName?.text.isNullOrBlank() &&
+                    !etRating?.text.isNullOrBlank() &&
+                    !etReview?.text.isNullOrBlank() &&
+                    pickedLat != null &&
+                    pickedLng != null
     }
 }
