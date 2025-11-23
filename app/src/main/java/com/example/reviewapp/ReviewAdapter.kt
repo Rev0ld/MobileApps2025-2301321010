@@ -16,6 +16,8 @@ import java.io.File
 
 class ReviewAdapter : ListAdapter<Review, ReviewAdapter.VH>(DIFF) {
 
+    public var lambdaOnClick : ((Review?) -> Unit)? = null
+
     object DIFF : DiffUtil.ItemCallback<Review>() {
         override fun areItemsTheSame(oldItem: Review, newItem: Review) = oldItem.id == newItem.id
         override fun areContentsTheSame(oldItem: Review, newItem: Review) = oldItem == newItem
@@ -53,8 +55,13 @@ class ReviewAdapter : ListAdapter<Review, ReviewAdapter.VH>(DIFF) {
             else -> imgView.setImageResource(android.R.drawable.sym_def_app_icon)
         }
 
-    }
+        holder.itemView.setOnClickListener { onItemClick(c) }
 
+    }
+    private fun onItemClick(c: Review?) {
+        lambdaOnClick?.let { it(c) }
+
+    }
 
 
 

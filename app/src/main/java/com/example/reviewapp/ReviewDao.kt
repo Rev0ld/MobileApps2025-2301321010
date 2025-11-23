@@ -23,4 +23,6 @@ interface ReviewDao {
     @Query("SELECT * FROM reviews")
     fun getAll(): List<Review>
 
+    @Query("SELECT * from reviews WHERE id = :id LIMIT 1")
+    fun getById(id: Int): Review?
 }

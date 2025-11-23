@@ -84,6 +84,17 @@ class MainActivity : AppCompatActivity() {
         rvReviews?.adapter = adapter
         photoRepo = PhotoRepository(this)
 
+        adapter?.lambdaOnClick = {  contact ->
+            val i = contact?.let {
+                Intent(applicationContext, UpdateDeleteActivity::class.java)
+                    .putExtra("review_id", it.id)
+            }
+            //startActivity(i)
+            if (i != null) {
+                startActivityForResult(i, 200)
+            }
+        }
+
         RefreshList()
 
         btnPick?.setOnClickListener { pickImage.launch(arrayOf("image/*")) }
