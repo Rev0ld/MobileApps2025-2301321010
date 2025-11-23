@@ -1,47 +1,116 @@
 package com.example.reviewapp
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.reviewapp.ui.theme.ReviewAppTheme
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import okio.Inflater
+import kotlin.collections.get
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
+
+    private var etName: EditText? = null
+    private var etRating: EditText? = null
+    private var etReview: EditText? = null
+
+
+    private var btnPick: Button? = null
+    private var btnAdd: Button? = null
+    private var ivPreview : ImageView? = null
+    private var rvReviews : RecyclerView? = null
+    private var  adapter : ReviewAdapter? = null
+
+
+    private var pickedLat: Double? = null
+    private var pickedLng: Double? = null
+
+
+    private val vm: ReviewViewModel by viewModels()
+    private lateinit var photoRepo: PhotoRepository
+
+
+    private var pickedPhotoPath: String? = null
+
+    private val pickImage = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            contentResolver.takePersistableUriPermission(
+                it, Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            pickedPhotoPath = photoRepo.saveFromUri(it)
+            ivPreview?.load(pickedPhotoPath)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContent {
-            ReviewAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+
+        setContentView(R.layout.activity_main)
+
+        etName = findViewById(R.id.etName)
+        etRating = findViewById(R.id.etRating)
+        etReview = findViewById(R.id.etReview)
+
+        btnPick = findViewById(R.id.btnPick)
+        btnAdd = findViewById(R.id.btnAdd)
+        ivPreview = findViewById(R.id.ivPreview)
+        rvReviews = findViewById(R.id.rvReviews)
+
+
+        adapter = ReviewAdapter()
+        rvReviews?.layoutManager = LinearLayoutManager(this)
+        rvReviews?.adapter = adapter
+        photoRepo = PhotoRepository(this)
+
+        RefreshList()
+
+        btnPick?.setOnClickListener { pickImage.launch(arrayOf("image/*")) }
+
+        btnAdd?.setOnClickListener {
+            val review = Review(
+                name = etName?.text.toString().trim(),
+                rating = etRating?.text.toString().trim(),
+                review = etReview?.text.toString().trim(),
+                photoPath = pickedPhotoPath,
+                latitude = pickedLat,
+                longitude = pickedLng
+            )
+            var t = Thread{
+                var db = AppDatabase.get(applicationContext)
+                db.reviewDao().insert(review)
+                runOnUiThread {
+                    RefreshList()
+                    etName?.text?.clear()
+                    etRating?.text?.clear()
+                    etReview?.text?.clear()
+                    pickedPhotoPath = null
+                    ivPreview?.setImageResource(android.R.drawable.ic_menu_gallery)
+
                 }
             }
+            t.start()
         }
     }
-}
+    private fun RefreshList() {
+        var t = Thread {
+            var listReviews = AppDatabase.get(applicationContext).reviewDao().getAll()
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ReviewAppTheme {
-        Greeting("Android")
+            runOnUiThread {
+                adapter?.submitList(listReviews)
+            }
+        }
+        t.start()
     }
 }
