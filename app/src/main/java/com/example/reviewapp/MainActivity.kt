@@ -94,6 +94,27 @@ class MainActivity : AppCompatActivity() {
                 startActivityForResult(i, 200)
             }
         }
+        adapter?.lambdaOnMapClick = { contact ->
+
+            val intent = Intent(this, MapActivity::class.java).apply {
+                if (contact != null) {
+                    putExtra("extra_name", contact.name)
+                }
+                if (contact != null) {
+                    putExtra("extra_rating", contact.rating)
+                }
+                if (contact != null) {
+                    putExtra("extra_review", contact.review)
+                }
+                if (contact != null) {
+                    putExtra("extra_lat", contact.latitude)
+                }
+                if (contact != null) {
+                    putExtra("extra_lon", contact.longitude)
+                }
+            }
+            startActivity(intent)
+        }
 
         RefreshList()
 

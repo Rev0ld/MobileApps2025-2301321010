@@ -13,6 +13,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ReviewApp">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAP_API_KEY}"/>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -36,6 +41,10 @@
         <activity
             android:name=".UpdateDeleteActivity"
             android:exported="false" />
+        <activity
+            android:name=".MapActivity"
+            android:exported="false"
+            android:label="@string/title_activity_map" />
     </application>
 
 </manifest>

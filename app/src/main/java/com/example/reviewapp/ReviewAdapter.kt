@@ -17,6 +17,8 @@ import java.io.File
 class ReviewAdapter : ListAdapter<Review, ReviewAdapter.VH>(DIFF) {
 
     public var lambdaOnClick : ((Review?) -> Unit)? = null
+    public var lambdaOnMapClick: ((Review?) -> Unit)? = null
+
 
     object DIFF : DiffUtil.ItemCallback<Review>() {
         override fun areItemsTheSame(oldItem: Review, newItem: Review) = oldItem.id == newItem.id
@@ -27,6 +29,8 @@ class ReviewAdapter : ListAdapter<Review, ReviewAdapter.VH>(DIFF) {
         val tvName: TextView = root.findViewById(R.id.tvName)
         val tvRating: TextView = root.findViewById(R.id.tvRating)
         val img: ImageView = root.findViewById(R.id.img)
+        val btnViewOnMap: Button = root.findViewById(R.id.btnViewOnMap)
+
 
         companion object {
             fun inflate(inflater: LayoutInflater, parent: ViewGroup, attachToParent: Boolean): ReviewAdapter.ItemReviewBinding {
@@ -56,6 +60,7 @@ class ReviewAdapter : ListAdapter<Review, ReviewAdapter.VH>(DIFF) {
         }
 
         holder.itemView.setOnClickListener { onItemClick(c) }
+        holder.b.btnViewOnMap.setOnClickListener { lambdaOnMapClick?.let { it(c) } }
 
     }
     private fun onItemClick(c: Review?) {
