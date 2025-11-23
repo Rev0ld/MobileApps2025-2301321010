@@ -68,6 +68,16 @@ class MainActivity : AppCompatActivity() {
         ivPreview = findViewById(R.id.ivPreview)
         rvReviews = findViewById(R.id.rvReviews)
 
+        etRating?.filters = arrayOf(android.text.InputFilter { source, start, end, dest, dstart, dend ->
+            val result = dest.toString().substring(0, dstart) +
+                    source.substring(start, end) +
+                    dest.toString().substring(dend)
+
+            if (result.isEmpty()) return@InputFilter null
+
+            val num = result.toIntOrNull()
+            if (num == null || num !in 1..5) "" else null
+        })
 
         adapter = ReviewAdapter()
         rvReviews?.layoutManager = LinearLayoutManager(this)
